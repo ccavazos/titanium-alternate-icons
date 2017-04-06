@@ -4,7 +4,7 @@
 
 Leverage the ability to change the app icon in iOS 10.3+.
 
-<img src="example/icon_white.png" width="320" alt="WhiteIcon" /><img src="example/icon_black.png" width="320" alt="BlackIcon" />
+<img src="example/icons.gif" width="320" alt="WhiteIcon" />
 
 ### Requirements
 
