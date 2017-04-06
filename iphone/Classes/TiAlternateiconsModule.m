@@ -34,25 +34,7 @@
 	// you *must* call the superclass
 	[super startup];
 
-	NSLog(@"[INFO] %@ loaded",self);
-}
-
--(void)shutdown:(id)sender
-{
-	// this method is called when the module is being unloaded
-	// typically this is during shutdown. make sure you don't do too
-	// much processing here or the app will be quit forceably
-
-	// you *must* call the superclass
-	[super shutdown:sender];
-}
-
-#pragma mark Cleanup
-
--(void)dealloc
-{
-	// release any resources that have been retained by the module
-	[super dealloc];
+	NSLog(@"[DEBUG] %@ loaded",self);
 }
 
 #pragma Public APIs
@@ -86,13 +68,14 @@
 }
 -(void)setAlternateIconName:(NSString*)iconName
 {
-    ENSURE_STRING(iconName)
+    ENSURE_STRING_OR_NIL(iconName)
 #ifdef __IPHONE_10_3
     [[UIApplication sharedApplication] setAlternateIconName:iconName completionHandler:^(NSError * _Nullable error) {
         if (error) {
             NSLog(@"[ERROR] Ti.AlternateIcons: %@", [error localizedDescription]);
         } else {
-            NSLog(@"[INFO] Ti.AlternateIcons: Icon has been changed to %@.", iconName);
+            // TODO: Pass optional callback as second parameter
+            NSLog(@"[DEBUG] Ti.AlternateIcons: Icon has been changed to %@.", iconName);
         }
     }];
 #else
@@ -102,18 +85,7 @@
 -(void)setDefaultIconName:(id)unused
 {
     ENSURE_ARG_COUNT(unused, 0);
-#ifdef __IPHONE_10_3
-    [[UIApplication sharedApplication] setAlternateIconName:nil completionHandler:^(NSError * _Nullable error) {
-        if (error) {
-            NSLog(@"[ERROR] Ti.AlternateIcons: %@", [error localizedDescription]);
-        } else {
-            NSLog(@"[INFO] Ti.AlternateIcons: Icon has been changed to Default.");
-        }
-    }];
-#else
-    NSLog(@"[ERROR] Ti.AlternateIcons: This feature is only available on iOS 10.3 and later.");
-#endif
-   
+    [self setAlternateIconName:nil];
 }
 
 @end

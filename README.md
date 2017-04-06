@@ -2,7 +2,7 @@
 
 ### Summary
 
-Leverage the ability to change the app icon in iOS 10.3+
+Leverage the ability to change the app icon in iOS 10.3+.
 
 <img src="example/icon_white.png" width="320" alt="WhiteIcon" /><img src="example/icon_black.png" width="320" alt="BlackIcon" />
 
@@ -27,13 +27,15 @@ Add the module requirement in your `tiapp.xml` file.
 </modules>
 ```
 
-In order to use this module with Titanium you will need to disable app thinning by editing the adding the following property in your `tiapp.xml`
+In order to use this module with Titanium you will need to disable app thinning by editing the adding the following property in your `tiapp.xml`:
 
 ```xml
 <ios>
     <use-app-thinning>false</use-app-thinning>
 </ios>
 ```
+
+Alternatively, you can pass the hashed name of the icon to the methods. You can look up the generated names in `build/iphone/Assets.xcassets`.
 
 Next, you have to declare the icons that you will use in your by adding the following to the `tiapp.xml`. The `<key>` named `alloyIcon` is the string that you will use to call the `set​Alternate​Icon​Name` method .
 
@@ -68,17 +70,15 @@ Copy your icons into the `app/assets/` folder. You can try it out with `alloy@2x
 ### Hyperloop
 
 This module is also built in Hyperloop to demonstrate the native API access with JavaScript.
-You can simple require the `ti.alternateicon.js` in your application and run it!
+You can simple require the `ti.alternateicons.js` in your application and run it!
 
 #### Example
 
-Request a new review dialog:
-
 ```javascript
-var AlternateIcon = require('ti.alternateicon');
+var AlternateIcon = require('ti.alternateicons');
 
 if (AlternateIcon.isSupported()) {
-  AlternateIcon.set​Alternate​Icon​Name('alloyIcon');
+    AlternateIcon.set​Alternate​Icon​Name('alloyIcon');
 }
 ```
 #### Methods
