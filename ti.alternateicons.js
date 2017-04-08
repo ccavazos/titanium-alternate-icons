@@ -25,16 +25,24 @@ exports.alternateIconName = function() {
 	}
 };
 
-exports.setAlternateIconName = function(iconName) {
-	UIApplication.sharedApplication.setAlternateIconNameCompletionHandler(iconName, function(error){
-		if (error) {
-			console.error('Ti.AlternateIcons', error);	
-		} else {
-			console.log('Ti.AlternateIcons: Icon has been changed to', (iconName) ? iconName : 'Default');
-		}
+exports.setAlternateIconName = function(iconName, cb) {
+	UIApplication.sharedApplication.setAlternateIconNameCompletionHandler(iconName, function(error) {
+        if (!cb) {
+            return;
+        }
+        
+        var event = {
+            success: error == null
+        };
+        
+        if (error != null) {
+            event.error = error.localizedDescription;
+        }
+        
+        cb(event);
 	});
 };
 
-exports.setDefaultIconName = function() {
-	exports.setAlternateIconName(null);
+exports.setDefaultIconName = function(cb) {
+	exports.setAlternateIconName(null, cb);
 };

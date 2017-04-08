@@ -75,10 +75,14 @@ You can simple require the `ti.alternateicons.js` in your application and run it
 #### Example
 
 ```javascript
-var AlternateIcon = require('ti.alternateicons');
+var AlternateIcons = require('ti.alternateicons');
 
-if (AlternateIcon.isSupported()) {
-    AlternateIcon.set​Alternate​Icon​Name('alloyIcon');
+if (AlternateIcons.isSupported()) {
+    AlternateIcons.set​Alternate​Icon​Name('alloyIcon', function(e) {
+        if (!e.success) {
+            Ti.API.error(e.error);
+        }
+    });
 }
 ```
 #### Methods
