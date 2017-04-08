@@ -1,6 +1,6 @@
 /**
  * Titanium Alternate Icons (Hyperloop)
- * @version 1.0.1
+ * @version 1.1.0
  * @author ccavazos
  */
 var UIApplication = require('UIKit/UIApplication');
@@ -26,7 +26,7 @@ exports.alternateIconName = function() {
 };
 
 exports.setAlternateIconName = function(iconName, cb) {
-	UIApplication.sharedApplication.setAlternateIconNameCompletionHandler(iconName, function(error) {
+    UIApplication.sharedApplication.setAlternateIconNameCompletionHandler(iconName, function(error) {
         if (!cb) {
             return;
         }
@@ -40,7 +40,7 @@ exports.setAlternateIconName = function(iconName, cb) {
         }
         
         cb(event);
-	});
+    });
 };
 
 exports.setDefaultIconName = function(cb) {
