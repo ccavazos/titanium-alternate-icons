@@ -9,6 +9,7 @@
 #import "TiBase.h"
 #import "TiHost.h"
 #import "TiUtils.h"
+#import <CommonCrypto/CommonDigest.h>
 
 @implementation TiAlternateiconsModule
 
@@ -79,20 +80,21 @@
     }
     
 #ifdef __IPHONE_10_3
-    [[UIApplication sharedApplication] setAlternateIconName:iconName completionHandler:^(NSError * _Nullable error) {
-        if (callback == nil) {
-            return;
-        }
+    [[UIApplication sharedApplication] setAlternateIconName:[self validatedIconWithName:iconName]
+                                          completionHandler:^(NSError * _Nullable error) {
+                                              if (callback == nil) {
+                                                  return;
+                                              }
         
-        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{@"success": NUMBOOL(error == nil)}];
+                                              NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{@"success": NUMBOOL(error == nil)}];
         
-        if (error) {
-            [event setObject:[error localizedDescription] forKey:@"error"];
-        }
+                                              if (error) {
+                                                  [event setObject:[error localizedDescription] forKey:@"error"];
+                                              }
         
-        NSArray *invocationArray = [NSArray arrayWithObjects:&event count:1];
-        [callback call:invocationArray thisObject:self];
-    }];
+                                              NSArray *invocationArray = [NSArray arrayWithObjects:&event count:1];
+                                              [callback call:invocationArray thisObject:self];
+                                          }];
 #else
     if (callback != nil) {
         NSDictionary *event = @{@"success": NUMBOOL(NO), @"error": @"This feature is only available on iOS 10.3 and later."};
@@ -108,6 +110,64 @@
 - (void)setDefaultIconName:(id)args
 {
     [self setAlternateIconName:@[[NSNull null], [args count] == 1 ? [args objectAtIndex:0] : [NSNull null]]];
+}
+
+#pragma mark Utilities
+
+- (NSString *)validatedIconWithName:(NSString * _Nullable)name
+{
+    if (name == nil) {
+        return nil;
+    }
+    
+    NSString *iconInAssetCatalog = [TiAlternateiconsModule iconInAssetCatalog:name];
+    
+    // This will return nil if asset catalog is not used
+    if (iconInAssetCatalog == nil) {
+        return name;
+    }
+
+    return iconInAssetCatalog;
+}
+
+// Based on Ti.Filesystem.getAsset()
++ (NSString *)iconInAssetCatalog:(NSString *)icon
+{
+    if (icon == nil) {
+        return nil;
+    }
+    
+    if ([icon hasPrefix:[NSString stringWithFormat:@"%@/", [[NSURL fileURLWithPath:[TiHost resourcePath] isDirectory:YES] path]]] && ([icon hasSuffix:@".jpg"] || [icon hasSuffix:@".png"])) {
+        
+        NSRange range = [icon rangeOfString:@".app"];
+        NSString *imageArg = nil;
+        
+        if (range.location != NSNotFound) {
+            imageArg = [icon substringFromIndex:range.location + 5];
+        }
+        
+        //remove suffixes.
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
+        imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~ipad" withString:@""];
+        
+        if (imageArg != nil) {
+            unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+            NSData *stringBytes = [imageArg dataUsingEncoding: NSUTF8StringEncoding];
+            if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
+                // SHA-1 hash has been calculated and stored in 'digest'.
+                NSMutableString *sha = [[NSMutableString alloc] init];
+                for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+                    [sha appendFormat:@"%02x", digest[i]];
+                }
+                [sha appendString:[icon substringFromIndex:[icon length] - 4]];
+                return [UIImage imageNamed:sha] == nil ? nil : sha;
+            }
+        }
+    }
+    
+    return nil;
 }
 
 @end
