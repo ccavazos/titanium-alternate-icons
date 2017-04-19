@@ -9,10 +9,14 @@
 
 @interface TiAlternateiconsModule : TiModule
 
-- (NSNumber*) isSupported:(id)unused;
-- (NSNumber*) supportsAlternateIcons:(id)unused;
-- (NSString*) alternateIconName:(id)unused;
-- (void) setAlternateIconName:(NSString*)iconName;
-- (void) setDefaultIconName:(id)unused;
+- (NSNumber *)isSupported:(id)unused;
+
+- (NSNumber *)supportsAlternateIcons:(id)unused;
+
+- (NSString *)alternateIconName:(id)unused;
+
+- (void)setAlternateIconName:(id)args;
+
+- (void)setDefaultIconName:(id)args;
 
 @end
