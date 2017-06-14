@@ -72,11 +72,15 @@
 {
     NSString *iconName;
     KrollCallback *callback;
-
+    
     ENSURE_ARG_OR_NIL_AT_INDEX(iconName, args, 0, NSString);
     
-    if ([args count] == 2) {
+    if ([args isKindOfClass:[NSArray class]] && [args count] == 2) {
+        ENSURE_ARG_AT_INDEX(iconName, args, 0, NSString);
         ENSURE_ARG_AT_INDEX(callback, args, 1, KrollCallback);
+    } else {
+        ENSURE_TYPE(args, NSString);
+        iconName = [TiUtils stringValue:args];
     }
     
 #ifdef __IPHONE_10_3
