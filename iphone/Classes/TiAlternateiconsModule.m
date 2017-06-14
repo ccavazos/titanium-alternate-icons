@@ -9,6 +9,7 @@
 #import "TiBase.h"
 #import "TiHost.h"
 #import "TiUtils.h"
+#import "TiFilesystemFileProxy.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation TiAlternateiconsModule
@@ -37,6 +38,8 @@
 
 	NSLog(@"[DEBUG] %@ loaded",self);
 }
+
+#define fileURLify(foo)    [[NSURL fileURLWithPath:foo isDirectory:YES] path]
 
 #pragma Public APIs
 
@@ -72,11 +75,20 @@
 {
     NSString *iconName;
     KrollCallback *callback;
-
-    ENSURE_ARG_OR_NIL_AT_INDEX(iconName, args, 0, NSString);
     
-    if ([args count] == 2) {
-        ENSURE_ARG_AT_INDEX(callback, args, 1, KrollCallback);
+    // FIXME: This is super ugly because of `setDefaultIcon`, need to refactor this whenever possible
+    if ([args isKindOfClass:[NSArray class]] && [args count] == 2) {
+        if ([args objectAtIndex:0] == [NSNull null]) {
+            id _callback = [args objectAtIndex:1];
+            iconName = nil;
+            callback = _callback != [NSNull null] && _callback != nil ? (KrollCallback *)[args objectAtIndex:1] : nil;
+        } else {
+            ENSURE_ARG_OR_NIL_AT_INDEX(iconName, args, 0, NSString);
+            ENSURE_ARG_OR_NIL_AT_INDEX(callback, args, 1, KrollCallback);
+        }
+    } else {
+        ENSURE_TYPE_OR_NIL(args, NSString);
+        iconName = [TiUtils stringValue:args];
     }
     
 #ifdef __IPHONE_10_3
@@ -88,7 +100,7 @@
         
                                               NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{@"success": NUMBOOL(error == nil)}];
         
-                                              if (error) {
+                                              if (error != nil) {
                                                   [event setObject:[error localizedDescription] forKey:@"error"];
                                               }
         
@@ -120,7 +132,7 @@
         return nil;
     }
     
-    NSString *iconInAssetCatalog = [TiAlternateiconsModule iconInAssetCatalog:name];
+    NSString *iconInAssetCatalog = [self iconInAssetCatalog:name];
     
     // This will return nil if asset catalog is not used
     if (iconInAssetCatalog == nil) {
@@ -131,11 +143,13 @@
 }
 
 // Based on Ti.Filesystem.getAsset()
-+ (NSString *)iconInAssetCatalog:(NSString *)icon
+- (NSString *)iconInAssetCatalog:(NSString *)icon
 {
     if (icon == nil) {
         return nil;
     }
+    
+    icon = [self pathFromComponents:@[[icon stringByAppendingString:@".png"]]];
     
     if ([icon hasPrefix:[NSString stringWithFormat:@"%@/", [[NSURL fileURLWithPath:[TiHost resourcePath] isDirectory:YES] path]]] && ([icon hasSuffix:@".jpg"] || [icon hasSuffix:@".png"])) {
         
@@ -161,13 +175,53 @@
                 for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
                     [sha appendFormat:@"%02x", digest[i]];
                 }
-                [sha appendString:[icon substringFromIndex:[icon length] - 4]];
+                [sha stringByDeletingLastPathComponent];
                 return [UIImage imageNamed:sha] == nil ? nil : sha;
             }
         }
     }
     
     return nil;
+}
+
+- (NSString *)pathFromComponents:(NSArray *)args
+{
+    NSString * newpath;
+    id first = [args objectAtIndex:0];
+    if ([first hasPrefix:@"file://"])
+    {
+        NSURL * fileUrl = [NSURL URLWithString:first];
+        //Why not just crop? Because the url may have some things escaped that need to be unescaped.
+        newpath =[fileUrl path];
+    }
+    else if ([first characterAtIndex:0]!='/')
+    {
+        NSURL* url = [NSURL URLWithString:[self resourcesDirectory]];
+        newpath = [[url path] stringByAppendingPathComponent:[self resolveFile:first]];
+    } else {
+        newpath = [self resolveFile:first];
+    }
+    
+    if ([args count] > 1) {
+        for (int c=1;c<[args count];c++) {
+            newpath = [newpath stringByAppendingPathComponent:[self resolveFile:[args objectAtIndex:c]]];
+        }
+    }
+    
+    return [newpath stringByStandardizingPath];
+}
+
+- (NSString *)resourcesDirectory
+{
+    return [NSString stringWithFormat:@"%@/", fileURLify([TiHost resourcePath])];
+}
+
+- (id)resolveFile:(id)arg
+{
+    if ([arg isKindOfClass:[TiFilesystemFileProxy class]]) {
+        return [(TiFilesystemFileProxy*)arg path];
+    }
+    return [TiUtils stringValue:arg];
 }
 
 @end

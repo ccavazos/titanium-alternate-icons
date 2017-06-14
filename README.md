@@ -41,27 +41,28 @@ Next, you have to declare the icons that you will use in your by adding the foll
 
 ```xml
 <ios>
-	<key>CFBundleIcons</key>
-	<dict>
-		<key>CFBundleAlternateIcons</key>
-		<dict>
-			<key>alloyIcon</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>alloy</string>
-				</array>
-			</dict>
-		</dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array>
-				<string>AppIcon</string>
-			</array>
-		</dict>
-	</dict>
-</dict>
+    <dict>
+        <key>CFBundleIcons</key>
+        <dict>
+            <key>CFBundleAlternateIcons</key>
+            <dict>
+                <key>alloyIcon</key>
+                <dict>
+                    <key>CFBundleIconFiles</key>
+                    <array>
+                        <string>alloy</string>
+                    </array>
+                </dict>
+            </dict>
+            <key>CFBundlePrimaryIcon</key>
+            <dict>
+                <key>CFBundleIconFiles</key>
+                <array>
+                    <string>AppIcon</string>
+                </array>
+            </dict>
+        </dict>
+    </dict>
 </ios>
 ```
 
@@ -87,11 +88,11 @@ if (AlternateIcons.isSupported()) {
 ```
 #### Methods
 
-- [x] `isSupported`
-- [x] `supportsAlternateIcons`
-- [x] `alternateIconName`
-- [x] `set​Alternate​Icon​Name`
-- [x] `setDefaultIconName`
+- [x]  `isSupported`
+- [x]  `supportsAlternateIcons`
+- [x]  `alternateIconName`
+- [x]  `set​Alternate​Icon​Name`
+- [x]  `setDefaultIconName`
 
 ### Author
 
@@ -107,4 +108,4 @@ Code contributions are greatly appreciated, please submit a new [pull request](h
 
 ### Special Thanks
 
-To [Hans Knoechel](https://github.com/hansemannn) because this module was created using [titanium-review-dialog](https://github.com/hansemannn/titanium-review-dialog) as a reference
+To [Hans Knoechel](https://github.com/hansemannn) because this module was created using [titanium-review-dialog](https://github.com/hansemannn/titanium-review-dialog) as a reference.
